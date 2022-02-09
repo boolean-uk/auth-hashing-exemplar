@@ -6,19 +6,19 @@ const prisma = new PrismaClient();
 
 const router = express.Router();
 
-const jwtSecret = 'mysecretkey';
-
 router.post('/register', async (req, res) => {
     const { username, password } = req.body;
 
-    const createdUser = await prisma.user.create({
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.create({
         data: {
             username,
-            password
+            password: hashedPassword
         }
     });
 
-    res.json({ data: createdUser });
+    res.json({ message: 'User created.' });
 });
 
 router.post('/login', async (req, res) => {
@@ -34,13 +34,13 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ error: 'Invalid username or password.' });
     }
 
-    const passwordsMatch = password === foundUser.password;
+    const passwordsMatch = await bcrypt.compare(password, foundUser.password);
 
     if (!passwordsMatch) {
         return res.status(401).json({ error: 'Invalid username or password.' });
     }
 
-    const token = jwt.sign({ username }, jwtSecret);
+    const token = jwt.sign({ username }, 'mysecretkey');
 
     res.json({ data: token });
 });
