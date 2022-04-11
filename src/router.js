@@ -8,13 +8,17 @@ const router = express.Router();
 
 const jwtSecret = 'mysecretkey';
 
+const saltRounds = 10
+
 router.post('/register', async (req, res) => {
     const { username, password } = req.body;
 
+    const hashedPassword = bcrypt.hashSync(password, saltRounds)
+
     const createdUser = await prisma.user.create({
         data: {
-            username,
-            password
+            username: username,
+            password: hashedPassword
         }
     });
 
