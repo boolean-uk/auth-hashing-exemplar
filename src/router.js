@@ -22,6 +22,8 @@ router.post('/register', async (req, res) => {
         }
     });
 
+    delete createdUser.password
+
     res.json({ data: createdUser });
 });
 
