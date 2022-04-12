@@ -23,7 +23,6 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-
   const foundUser = await prisma.user.findFirst({
     where: {
       username,
@@ -34,7 +33,7 @@ router.post('/login', async (req, res) => {
     return res.status(401).json({ error: 'Invalid username or password.' });
   }
 
-  const passwordsMatch = password === foundUser.password;
+  const passwordsMatch = bcrypt.compareSync(password, foundUser.password);
 
   if (!passwordsMatch) {
     return res.status(401).json({ error: 'Invalid username or password.' });
